@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Text to Speech AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="container">
+    <h1>🎤 Text to Speech AI</h1>
+    <p>Convert text into speech instantly</p>
+
+    {% if error %}
+        <p class="error">{{ error }}</p>
+    {% endif %}
+
+    <form method="POST" onsubmit="showLoading()">
+        
+        <label>Select Language:</label><br>
+        <select name="language" required>
+            <option value="english">English</option>
+            <option value="tamil">Tamil</option>
+            <option value="malayalam">Malayalam</option>
+        </select><br><br>
+
+        <textarea name="text" rows="4" placeholder="Enter your text..." required></textarea><br><br>
+
+        <button type="submit">Generate Audio</button>
+    </form>
+
+    <p id="loading" style="display:none; color:blue;">
+        Generating audio... please wait ⏳
+    </p>
+
+    {% if audio_file %}
+        <h3>Output:</h3>
+        <audio controls>
+            <source src="{{ url_for('serve_audio', filename=audio_file) }}" type="audio/mpeg">
+        </audio>
+
+        <br><br>
+        <a href="{{ url_for('serve_audio', filename=audio_file) }}" download>
+            <button>Download</button>
+        </a>
+    {% endif %}
+</div>
+
+<script>
+function showLoading() {
+    document.getElementById("loading").style.display = "block";
+}
+</script>
+
+</body>
+</html>
