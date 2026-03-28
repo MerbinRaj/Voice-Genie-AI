@@ -7,9 +7,15 @@ from googletrans import Translator
 
 app = Flask(__name__)
 
+# Base directory
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Folders for uploads and outputs
+UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads")
 OUTPUT_FOLDER = os.path.join(BASE_DIR, "outputs")
 
+# Create folders if they don't exist
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
 # Translator
@@ -38,7 +44,6 @@ async def generate_audio(text, output_path, voice):
         pitch="-2Hz"
     )
     await communicate.save(output_path)
-
 
 @app.route("/", methods=["GET", "POST"])
 def home():
@@ -76,11 +81,9 @@ def home():
 
     return render_template("index.html", audio_file=audio_file, error=error)
 
-
 @app.route("/outputs/<filename>")
 def serve_audio(filename):
     return send_from_directory(OUTPUT_FOLDER, filename)
-
 
 if __name__ == "__main__":
     app.run(debug=True)
