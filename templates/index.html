@@ -1,55 +1,82 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Text to Speech AI</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Genie AI</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
 
-<div class="container">
-    <h1>🎤 Text to Speech AI</h1>
-    <p>Convert text into speech instantly</p>
+    <!-- TITLE -->
+    <h1>🎤 Voice Genie AI</h1>
 
-    {% if error %}
-        <p class="error">{{ error }}</p>
-    {% endif %}
+    <!-- MAIN CONTAINER -->
+    <div class="container">
 
-    <form method="POST" onsubmit="showLoading()">
-        
-        <label>Select Language:</label><br>
-        <select name="language" required>
-            <option value="english">English</option>
-            <option value="tamil">Tamil</option>
-            <option value="malayalam">Malayalam</option>
-        </select><br><br>
+        <!-- ERROR MESSAGE -->
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
 
-        <textarea name="text" rows="4" placeholder="Enter your text..." required></textarea><br><br>
+        <!-- TEXT TO SPEECH FORM -->
+        <form method="POST" onsubmit="showLoading()">
 
-        <button type="submit">Generate Audio</button>
-    </form>
+            <label>Select Language:</label>
 
-    <p id="loading" style="display:none; color:blue;">
-        Generating audio... please wait ⏳
-    </p>
+            <!-- LANGUAGE BUTTONS -->
+            <div class="lang-buttons">
+                <button type="button" onclick="selectLang('english', this)" class="active">English</button>
+                <button type="button" onclick="selectLang('tamil', this)">Tamil</button>
+                <button type="button" onclick="selectLang('malayalam', this)">Malayalam</button>
+            </div>
 
-    {% if audio_file %}
-        <h3>Output:</h3>
-        <audio controls>
-            <source src="{{ url_for('serve_audio', filename=audio_file) }}" type="audio/mpeg">
-        </audio>
+            <!-- HIDDEN INPUT FOR SELECTED LANGUAGE -->
+            <input type="hidden" name="language" id="language" value="english">
 
-        <br><br>
-        <a href="{{ url_for('serve_audio', filename=audio_file) }}" download>
-            <button>Download</button>
-        </a>
-    {% endif %}
-</div>
+            <!-- TEXT AREA -->
+            <textarea name="text" rows="4" placeholder="Enter your text..." required></textarea>
 
-<script>
-function showLoading() {
-    document.getElementById("loading").style.display = "block";
-}
-</script>
+            <!-- SUBMIT BUTTON -->
+            <button type="submit">Generate Audio</button>
+        </form>
 
+        <!-- LOADING INDICATOR -->
+        <p id="loading" style="display:none;">Generating... ⏳</p>
+
+        <!-- AUDIO PLAYER + DOWNLOAD -->
+        {% if audio_file %}
+            <audio controls>
+                <source src="{{ url_for('serve_audio', filename=audio_file) }}" type="audio/mpeg">
+            </audio>
+
+            <br><br>
+            <a href="{{ url_for('serve_audio', filename=audio_file) }}" download>
+                <button type="button">Download Audio</button>
+            </a>
+        {% endif %}
+    </div>
+
+    <!-- SCRIPTS -->
+    <script>
+        // Show loading text while generating audio
+        function showLoading() {
+            document.getElementById("loading").style.display = "block";
+        }
+
+        // Select language buttons and set hidden input value
+        function selectLang(lang, btn) {
+            document.getElementById("language").value = lang;
+
+            let buttons = document.querySelectorAll(".lang-buttons button");
+            buttons.forEach(b => b.classList.remove("active"));
+
+            btn.classList.add("active");
+        }
+    </script>
+    <form action="{{ url_for('logout') }}" method="get">
+    <button type="submit" class="logout-btn"> Logout</button>
+</form>
+    
 </body>
 </html>
