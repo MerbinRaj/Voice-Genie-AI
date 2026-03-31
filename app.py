@@ -47,7 +47,7 @@ async def generate_audio(text, output_path, voice):
     await communicate.save(output_path)
 
 # ---------------- LOGIN + SIGNUP ROUTE ----------------
-@app.route("/", methods=["GET", "POST"])
+@app.route("/login", methods=["GET", "POST"])
 def login():
     error = None
 
@@ -73,7 +73,7 @@ def login():
     return render_template("login.html", error=error)
 
 # ---------------- MAIN APP ROUTE ----------------
-@app.route("/home", methods=["GET", "POST"])
+@app.route("/", methods=["GET", "POST"])
 def home():
     if "user" not in session:
         return redirect(url_for("login"))
@@ -126,4 +126,4 @@ def logout():
 
 # ---------------- RUN APP ----------------
 if __name__ == "__main__":
-    app.run(debug=True)
+  app.run(host="0.0.0.0", port=10000)
