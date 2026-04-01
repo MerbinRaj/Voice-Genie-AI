@@ -3,7 +3,7 @@ import os
 import uuid
 import asyncio
 import edge_tts
-from googletrans import Translator
+from deep_translator import GoogleTranslator
 
 # ---------------- FLASK APP SETUP ----------------
 app = Flask(__name__)
@@ -12,9 +12,6 @@ app.secret_key = "secret123"
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 OUTPUT_FOLDER = os.path.join(BASE_DIR, "outputs")
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
-
-# ---------------- TRANSLATOR ----------------
-translator = Translator()
 
 # ---------------- VOICE AND LANGUAGE MAP ----------------
 VOICE_MAP = {
@@ -30,14 +27,10 @@ LANG_CODE = {
 }
 
 # ---------------- TEMP USER STORAGE ----------------
-# Format: {email: {"username": ..., "password": ...}}
 users = {}
 
 # ---------------- AUDIO GENERATION FUNCTION ----------------
 async def generate_audio(text, output_path, voice):
-    """
-    Generate audio using edge_tts
-    """
     communicate = edge_tts.Communicate(
         text=text,
         voice=voice,
@@ -56,15 +49,12 @@ def login():
         email = request.form.get("email")
         password = request.form.get("password")
 
-        # LOGIN
         if email in users:
             if users[email]["password"] == password:
                 session["user"] = users[email]["username"]
                 return redirect(url_for("home"))
             else:
                 error = "Wrong password"
-
-        # SIGNUP
         else:
             users[email] = {"username": username, "password": password}
             session["user"] = username
@@ -90,20 +80,17 @@ def home():
             return render_template("index.html", error=error)
 
         try:
-            # Translate if language is not English
+            # ✅ FIXED TRANSLATION
             target_lang = LANG_CODE.get(language, "en")
             if target_lang != "en":
-                translated = translator.translate(text, dest=target_lang)
-                text = translated.text
+                text = GoogleTranslator(source='auto', target=target_lang).translate(text)
 
             voice = VOICE_MAP.get(language)
 
-            # Generate unique audio file
             file_id = str(uuid.uuid4())
             filename = f"{file_id}.mp3"
             path = os.path.join(OUTPUT_FOLDER, filename)
 
-            # Generate audio
             asyncio.run(generate_audio(text, path, voice))
 
             audio_file = filename
@@ -126,4 +113,4 @@ def logout():
 
 # ---------------- RUN APP ----------------
 if __name__ == "__main__":
-  app.run(host="0.0.0.0", port=10000)
+    app.run(host="0.0.0.0", port=10000)
